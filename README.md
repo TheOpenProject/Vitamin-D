@@ -35,3 +35,8 @@ Shiny App: http://beyond.shinyapps.io/vitamind3/
    setwd("../project/VDmodel")
 3. Computation time for sampling varies by the duration you choose to simulate. Roughly speaking, 1 minute of computing to simulate 60 days. Have a look at Figure S6 and Figure S7 in the supplementary materials and choose which set you'd like to simulate
 4. For faster simulation, you may implement the model in C or Fortran and call it from R
+
+## Copyright
+The R script and data are shared under the Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0) license.
+
+https://creativecommons.org/licenses/by-nc-nd/4.0/
