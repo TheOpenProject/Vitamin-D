@@ -29,7 +29,7 @@ Shiny App: http://beyond.shinyapps.io/vitamind3/
 3. Final_model.R       Final model for VPC
 4. MCMC-Run009b.RDS    MCMC results needed for sampling the final model
 
-## To run the R script
+## Run the R script
 1. Save all files into a directory on your computer
 2. Set the work directory to the path where csv files are located by modifying and running line 38 of the R script
    setwd("../project/VDmodel")
