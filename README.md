@@ -1,4 +1,4 @@
-## PBPK modelling of serum levels of vitamin D and its active metabolite 25-hydroxyvitamin D
+## PBPK modelling of serum levels of vitamin D and 25-hydroxyvitamin D
 Reference:
 Huang Z & You T (2021) Personalise vitamin D3 using physiologically based pharmacokinetic modelling.
 CPT: Pharmacometrics Syst Pharmacol. 10(7):723-734.
