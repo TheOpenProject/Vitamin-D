@@ -37,6 +37,6 @@ Shiny App: http://beyond.shinyapps.io/vitamind3/
 4. For faster simulation, you may implement the model in C or Fortran and call it from R
 
 ## Copyright
-The R script and data are shared under the Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0) license.
+The R script and data are shared under the Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0) license
 
 https://creativecommons.org/licenses/by-nc-nd/4.0/
