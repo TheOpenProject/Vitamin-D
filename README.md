@@ -1,6 +1,4 @@
-## Vitamin-D
-PBPK modelling to predict serum levels of vitamin D and its active metabolite 25-hydroxyvitamin D.
-
+## PBPK modelling to predict serum levels of vitamin D and its active metabolite 25-hydroxyvitamin D.
 Reference:
 Huang Z & You T (2021) Personalise vitamin D3 using physiologically based pharmacokinetic modelling.
 CPT: Pharmacometrics Syst Pharmacol. 10(7):723-734.
@@ -23,7 +21,7 @@ doi: 10.1002/psp4.12640.
 4. Reliable inferences for parameter values
 5. A single set of parameter values to encompass diverse data (different countries, seasons, races, gender, age, weight, BMI etc)
 
-## Files:
+## Files
 1. 25(OH)Dtestset.csv  Test set: Figure S7. Visual predictive check of 25(OH)D after repeat dose.
 2. 25(OH)Dpc10_100.csv Training set: Figure S6. Visual predictive check of 25(OH)D after repeat dose.
 3. Final_model.R       Final model for VPC.
