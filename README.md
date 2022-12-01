@@ -4,7 +4,7 @@ Huang Z & You T (2021) Personalise vitamin D3 using physiologically based pharma
 CPT: Pharmacometrics Syst Pharmacol. 10(7):723-734.
 doi: 10.1002/psp4.12640.
 
-## Significance of the work
+## Significance
 1. The first-ever well-qualified pharmacokinetics model of vitamin D
    Data Set    Purpose     Observation    No. of Arms     Dose Range
           A   Training              VD             13     [70, 2500] μg SD; [20, 275] μg QD
