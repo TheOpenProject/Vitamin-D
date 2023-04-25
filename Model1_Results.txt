@@ -1,0 +1,188 @@
+> library(nlmixr2)
+Loading required package: nlmixr2data
+Warning message:
+package ‘nlmixr2’ was built under R version 4.2.3 
+> setwd("C:/Users/HP/Desktop/Vitamin D PBPK/R")
+> getwd()
+[1] "C:/Users/HP/Desktop/Vitamin D PBPK/R"
+> ppk25OHD_Train <-read.csv(file="ppk25OHD_Train.csv",stringsAsFactors = FALSE)
+> str(ppk25OHD_Train)
+'data.frame':	172 obs. of  18 variables:
+ $ X         : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ ID        : int  1 1 1 1 1 1 1 2 2 2 ...
+ $ TIME      : int  0 0 168 336 504 1176 1680 0 0 2160 ...
+ $ DV        : int  0 17 21 36 50 60 60 0 24 59 ...
+ $ MDV       : int  1 0 0 0 0 0 0 1 0 0 ...
+ $ AMT       : num  26 0 0 0 0 0 0 26 0 0 ...
+ $ EVID      : int  1 0 0 0 0 0 0 1 0 0 ...
+ $ DOSE      : int  10 10 10 10 10 10 10 10 10 10 ...
+ $ ADDL      : int  69 0 0 0 0 0 0 359 0 0 ...
+ $ II        : int  24 0 0 0 0 0 0 24 0 0 ...
+ $ CMT       : chr  "A_dep" "cp" "cp" "cp" ...
+ $ D25BASE   : int  17 17 17 17 17 17 17 24 24 24 ...
+ $ DURATION  : int  70 70 70 70 70 70 70 360 360 360 ...
+ $ AGE       : num  21.2 21.2 21.2 21.2 21.2 21.2 21.2 81 81 81 ...
+ $ SEX       : chr  "M" "M" "M" "M" ...
+ $ BMI       : num  NA NA NA NA NA NA NA NA NA NA ...
+ $ SEASON    : chr  NA NA NA NA ...
+ $ CONTINENTS: chr  "Europe" "Europe" "Europe" "Europe" ...
+> f <- function(){
++   ini({
++     
++     # TKp25rb    = round(log(0.54),2)
++     # TCL_C50    = round(log(86.3),2)
++     # TCL_GAMMA  = round(log(5.64),2) 
++     TCL_EMAX   = round(log(0.033),2)
++     
++     add.err <- 1
++     prop.err <-0.0225
++     
++     # eta.Kp25rb +eta.CL_EMAX~ c(0.1, 
++     #                            0.01, 0.1) 
++     
++     eta.CL_EMAX ~ 0.0225
++     
++   })
++   model({
++     # Kp25rb   =  exp(TKp25rb+eta.Kp25rb)
++     
++     Kp25rb   =  0.54;
++     CL_C50   =  86.3;
++     CL_GAMMA =  5.64;
++     # Kp25rb   =  exp(TKp25rb)
++     # CL_C50   =  exp(TCL_C50)
++     # CL_GAMMA =  exp(TCL_GAMMA)
++     CL_EMAX  =  exp(TCL_EMAX+eta.CL_EMAX)
++     
++     Qco  =312;
++     Ql   =70.824;
++     Qrb  =241.176;
++     Vven =4.2;
++     Vl   =1.80;
++     Vrb  =62.60;
++     Vart =1.40;
++     Kpl  =1;
++     Kprb =0.09;
++     MCLH =0.2;
++     Kp25l=1;
++     CL_0 =0;
++     ka   =0.19;
++     
++     A_dep   (0)   =  0;
++     A_ven   (0)  =   (CL_0+CL_EMAX*D25BASE^CL_GAMMA/(D25BASE^CL_GAMMA+CL_C50^CL_GAMMA))*3*D25BASE/MCLH*Vven;
++     A_l     (0)  =   (CL_0+CL_EMAX*D25BASE^CL_GAMMA/(D25BASE^CL_GAMMA+CL_C50^CL_GAMMA))*3*D25BASE/MCLH*Vl*Kpl;
++     A_rb    (0)  =   (CL_0+CL_EMAX*D25BASE^CL_GAMMA/(D25BASE^CL_GAMMA+CL_C50^CL_GAMMA))*3*D25BASE/MCLH*Vrb*Kprb;
++     A_art   (0)  =   (CL_0+CL_EMAX*D25BASE^CL_GAMMA/(D25BASE^CL_GAMMA+CL_C50^CL_GAMMA))*3*D25BASE/MCLH*Vart;
++     A_col   (0)  =   0;
++     A25_ven (0) =   D25BASE*Vven;
++     A25_l   (0) =   D25BASE*Vl*Kp25l;
++     A25_rb  (0) =   D25BASE*Vrb*Kp25rb;
++     A25_art  (0) =   D25BASE*Vart;
++     A25_col  (0) =   D25BASE*Vart;
++     
++     d/dt(A_dep)   = -ka*A_dep;
++     d/dt(A_ven)   = Ql*A_l/Vl/Kpl+Qrb*A_rb/Vrb/Kprb-A_ven/Vven*Qco;
++     d/dt(A_l)     = A_art/Vart*Ql-Ql*A_l/Vl/Kpl-MCLH*A_l/Vl/Kpl+(CL_0+
++                                                                    CL_EMAX*D25BASE**CL_GAMMA/(D25BASE**CL_GAMMA+CL_C50**CL_GAMMA))*D25BASE*3+ka*A_dep;
++     d/dt(A_rb)    = A_art/Vart*Qrb-Qrb*A_rb/Vrb/Kprb;
++     d/dt(A_art)   = A_ven/Vven*Qco-A_art/Vart*Ql-A_art/Vart*Qrb;
++     d/dt(A_col)   = MCLH*A_l/Vl/Kpl;
++     d/dt(A25_ven) = Ql*A25_l/Vl/Kp25l+Qrb*A25_rb/Vrb/Kp25rb-A25_ven/Vven*Qco;
++     d/dt(A25_l)   = A25_art/Vart*Ql-Ql*A25_l/Vl/Kp25l+MCLH*A_l/Vl/Kpl/3-
++       (CL_0+CL_EMAX*(A25_l/Vl/Kp25l)**CL_GAMMA/((A25_l/Vl/Kp25l)**CL_GAMMA +CL_C50**CL_GAMMA))*(A25_l/Vl/Kp25l);
++     d/dt(A25_rb)  = A25_art/Vart*Qrb-Qrb*A25_rb/Vrb/Kp25rb;
++     d/dt(A25_art) = A25_ven/Vven*Qco-A25_art/Vart*Ql-A25_art/Vart*Qrb;
++     d/dt(A25_col) = (CL_0+CL_EMAX*(A25_l/Vl/Kp25l)**CL_GAMMA/((A25_l/Vl/Kp25l)**CL_GAMMA+CL_C50**CL_GAMMA))*(A25_l/Vl/Kp25l);
++     
++     
++     cp = A25_ven / Vven;
++     cp ~ add(add.err)+prop(prop.err)
++     
++   })
++ }
+> fit <- nlmixr(f, ppk25OHD_Train, est="focei",
++               control=list(print=0))
+→ loading into symengine environment...
+→ pruning branches (`if`/`else`) of full model...
+✔ done
+→ calculate jacobian
+[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
+→ calculate sensitivities
+[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
+→ calculate ∂(f)/∂(η)
+[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
+→ calculate ∂(R²)/∂(η)
+[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
+→ finding duplicate expressions in inner model...
+[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
+→ optimizing duplicate expressions in inner model...
+[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
+→ finding duplicate expressions in EBE model...
+[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
+→ optimizing duplicate expressions in EBE model...
+[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
+→ compiling inner model...
+✔ done
+→ finding duplicate expressions in FD model...
+[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
+→ optimizing duplicate expressions in FD model...
+[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
+→ compiling EBE model...
+✔ done
+→ compiling events FD model...
+✔ done
+rxode2 2.0.12 using 4 threads (see ?getRxThreads)
+  no cache: create with `rxCreateCache()`
+calculating covariance matrix
+[====|====|====|====|====|====|====|====|====|====] 0:05:00 
+] 0:07:29 
+done
+→ Calculating residuals/tables
+✔ done
+→ compress origData in nlmixr2 object, save 18456
+→ compress parHist in nlmixr2 object, save 1592
+> print(fit)
+── nlmixr² FOCEi (outer: nlminb) ──
+
+          OBJF      AIC      BIC Log-likelihood Condition#(Cov) Condition#(Cor)
+FOCEi 742.5302 987.6164 999.0556      -489.8082               1               1
+
+── Time (sec fit$time): ──
+
+        setup optimize covariance table compress    other
+elapsed 0.035  449.423    449.423  6.76     0.02 4245.779
+
+── Population Parameters (fit$parFixed or fit$parFixedDf): ──
+
+             Est.    SE %RSE Back-transformed(95%CI) BSV(CV%) Shrink(SD)%
+TCL_EMAX    -3.25 0.117  3.6 0.0389 (0.0309, 0.0489)     34.5      38.6% 
+add.err      9.57                               9.57                     
+prop.err 0.000811                           0.000811                     
+ 
+  Covariance Type (fit$covMethod): r,s
+  No correlations in between subject variability (BSV) matrix
+  Full BSV covariance (fit$omega) or correlation (fit$omegaR; diagonals=SDs) 
+  Distribution stats (mean/skewness/kurtosis/p-value) available in fit$shrink 
+  Information about run found (fit$runInfo):
+   • gradient problems with initial estimate and covariance; see $scaleInfo 
+   • last objective function was not at minimum, possible problems in optimization 
+   • ETAs were reset to zero during optimization; (Can control by foceiControl(resetEtaP=.)) 
+   • initial ETAs were nudged; (can control by foceiControl(etaNudge=., etaNudge2=)) 
+   • package ‘rxode2’ was built under R version 4.2.3 
+  Censoring (fit$censInformation): No censoring
+  Minimization message (fit$message):  
+    relative convergence (4) 
+
+── Fit Data (object fit is a modified tibble): ──
+# A tibble: 129 × 28
+  ID     TIME    DV  PRED      RES     WRES IPRED     IRES    IWRES CPRED     CRES    CWRES eta.CL_EMAX A_dep
+  <fct> <dbl> <dbl> <dbl>    <dbl>    <dbl> <dbl>    <dbl>    <dbl> <dbl>    <dbl>    <dbl>       <dbl> <dbl>
+1 1         0    17  17   7.11e-15 7.43e-16  17   7.11e-15 7.43e-16  17   7.11e-15 7.43e-16    -0.00195  26  
+2 1       168    21  18.0 3.00e+ 0 3.14e- 1  18.0 3.00e+ 0 3.14e- 1  18.0 3.00e+ 0 3.14e- 1    -0.00195  26.3
+3 1       336    36  19.4 1.66e+ 1 1.73e+ 0  19.4 1.66e+ 1 1.73e+ 0  19.4 1.66e+ 1 1.73e+ 0    -0.00195  26.3
+# … with 126 more rows, and 14 more variables: A_ven <dbl>, A_l <dbl>, A_rb <dbl>, A_art <dbl>, A_col <dbl>,
+#   A25_ven <dbl>, A25_l <dbl>, A25_rb <dbl>, A25_art <dbl>, A25_col <dbl>, CL_EMAX <dbl>, tad <dbl>,
+#   dosenum <dbl>, D25BASE <dbl>
+# ℹ Use `print(n = ...)` to see more rows, and `colnames()` to see all variable names
+
+
