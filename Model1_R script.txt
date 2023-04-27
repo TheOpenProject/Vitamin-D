@@ -1,9 +1,9 @@
-library(nlmixr2)
+library( nlmixr2)
 
 setwd("C:/Users/HP/Desktop/Vitamin D PBPK/R")
 getwd()
-ppk25OHD_Train <-read.csv(file="ppk25OHD_Train.csv",stringsAsFactors = FALSE)
-str(ppk25OHD_Train)
+ppk25OHD_Model1 <-read.csv(file="ppk25OHD_Model1.csv",stringsAsFactors = FALSE)
+str(ppk25OHD_Model1)
 
 f <- function(){
   ini({
@@ -80,7 +80,8 @@ f <- function(){
   })
 }
 
-fit <- nlmixr(f, ppk25OHD_Train, est="focei",
+fit <- nlmixr(f, ppk25OHD_Model1, est="focei",
               control=list(print=0))
 
 print(fit)
+

@@ -1,13 +1,10 @@
-> library(nlmixr2)
-Loading required package: nlmixr2data
-Warning message:
-package ‘nlmixr2’ was built under R version 4.2.3 
+> library( nlmixr2)
 > setwd("C:/Users/HP/Desktop/Vitamin D PBPK/R")
 > getwd()
 [1] "C:/Users/HP/Desktop/Vitamin D PBPK/R"
-> ppk25OHD_Train <-read.csv(file="ppk25OHD_Train.csv",stringsAsFactors = FALSE)
-> str(ppk25OHD_Train)
-'data.frame':	172 obs. of  18 variables:
+> ppk25OHD_Model1 <-read.csv(file="ppk25OHD_Model1.csv",stringsAsFactors = FALSE)
+> str(ppk25OHD_Model1)
+'data.frame':	385 obs. of  18 variables:
  $ X         : int  1 2 3 4 5 6 7 8 9 10 ...
  $ ID        : int  1 1 1 1 1 1 1 2 2 2 ...
  $ TIME      : int  0 0 168 336 504 1176 1680 0 0 2160 ...
@@ -15,7 +12,7 @@ package ‘nlmixr2’ was built under R version 4.2.3
  $ MDV       : int  1 0 0 0 0 0 0 1 0 0 ...
  $ AMT       : num  26 0 0 0 0 0 0 26 0 0 ...
  $ EVID      : int  1 0 0 0 0 0 0 1 0 0 ...
- $ DOSE      : int  10 10 10 10 10 10 10 10 10 10 ...
+ $ DOSE      : num  10 10 10 10 10 10 10 10 10 10 ...
  $ ADDL      : int  69 0 0 0 0 0 0 359 0 0 ...
  $ II        : int  24 0 0 0 0 0 0 24 0 0 ...
  $ CMT       : chr  "A_dep" "cp" "cp" "cp" ...
@@ -100,89 +97,55 @@ package ‘nlmixr2’ was built under R version 4.2.3
 +     
 +   })
 + }
-> fit <- nlmixr(f, ppk25OHD_Train, est="focei",
+> fit <- nlmixr(f, ppk25OHD_Model1, est="focei",
 +               control=list(print=0))
-→ loading into symengine environment...
-→ pruning branches (`if`/`else`) of full model...
-✔ done
-→ calculate jacobian
-[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
-→ calculate sensitivities
-[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
-→ calculate ∂(f)/∂(η)
-[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
-→ calculate ∂(R²)/∂(η)
-[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
-→ finding duplicate expressions in inner model...
-[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
-→ optimizing duplicate expressions in inner model...
-[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
-→ finding duplicate expressions in EBE model...
-[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
-→ optimizing duplicate expressions in EBE model...
-[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
-→ compiling inner model...
-✔ done
-→ finding duplicate expressions in FD model...
-[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
-→ optimizing duplicate expressions in FD model...
-[====|====|====|====|====|====|====|====|====|====] 100%; 0:00:00 
-→ compiling EBE model...
-✔ done
-→ compiling events FD model...
-✔ done
-rxode2 2.0.12 using 4 threads (see ?getRxThreads)
-  no cache: create with `rxCreateCache()`
-calculating covariance matrix
-[====|====|====|====|====|====|====|====|====|====] 0:05:00 
-] 0:07:29 
+[====|====|====|====|====|====|====|====|====|====] 0:42:17 
 done
 → Calculating residuals/tables
 ✔ done
-→ compress origData in nlmixr2 object, save 18456
-→ compress parHist in nlmixr2 object, save 1592
+→ compress origData in nlmixr2 object, save 38824
+→ compress parHist in nlmixr2 object, save 1416
 > print(fit)
 ── nlmixr² FOCEi (outer: nlminb) ──
 
-          OBJF      AIC      BIC Log-likelihood Condition#(Cov) Condition#(Cor)
-FOCEi 742.5302 987.6164 999.0556      -489.8082               1               1
+         OBJF      AIC     BIC Log-likelihood
+FOCEi 1637.48 2185.815 2200.55      -1088.908
 
 ── Time (sec fit$time): ──
 
         setup optimize covariance table compress    other
-elapsed 0.035  449.423    449.423  6.76     0.02 4245.779
+elapsed 0.009    0.001      0.001   3.5     0.01 2537.759
 
 ── Population Parameters (fit$parFixed or fit$parFixedDf): ──
 
-             Est.    SE %RSE Back-transformed(95%CI) BSV(CV%) Shrink(SD)%
-TCL_EMAX    -3.25 0.117  3.6 0.0389 (0.0309, 0.0489)     34.5      38.6% 
-add.err      9.57                               9.57                     
-prop.err 0.000811                           0.000811                     
+             Est. Back-transformed BSV(CV%) Shrink(SD)%
+TCL_EMAX    -3.06           0.0471     34.5      35.9% 
+add.err      8.89             8.89                     
+prop.err 5.96e-07         5.96e-07                     
  
-  Covariance Type (fit$covMethod): r,s
+  Covariance Type (fit$covMethod): Boundary issue; Get SEs with `getVarCov()`: "prop.err" 
   No correlations in between subject variability (BSV) matrix
   Full BSV covariance (fit$omega) or correlation (fit$omegaR; diagonals=SDs) 
   Distribution stats (mean/skewness/kurtosis/p-value) available in fit$shrink 
   Information about run found (fit$runInfo):
-   • gradient problems with initial estimate and covariance; see $scaleInfo 
+   • gradient problems with initial estimate; see $scaleInfo 
+   • parameter estimate near boundary; covariance not calculated: "prop.err" use 'getVarCov' to calculate anyway 
    • last objective function was not at minimum, possible problems in optimization 
    • ETAs were reset to zero during optimization; (Can control by foceiControl(resetEtaP=.)) 
    • initial ETAs were nudged; (can control by foceiControl(etaNudge=., etaNudge2=)) 
-   • package ‘rxode2’ was built under R version 4.2.3 
+   • IDs without observations dropped: 76 
   Censoring (fit$censInformation): No censoring
   Minimization message (fit$message):  
     relative convergence (4) 
 
 ── Fit Data (object fit is a modified tibble): ──
-# A tibble: 129 × 28
+# A tibble: 294 × 28
   ID     TIME    DV  PRED      RES     WRES IPRED     IRES    IWRES CPRED     CRES    CWRES eta.CL_EMAX A_dep
   <fct> <dbl> <dbl> <dbl>    <dbl>    <dbl> <dbl>    <dbl>    <dbl> <dbl>    <dbl>    <dbl>       <dbl> <dbl>
-1 1         0    17  17   7.11e-15 7.43e-16  17   7.11e-15 7.43e-16  17   7.11e-15 7.43e-16    -0.00195  26  
-2 1       168    21  18.0 3.00e+ 0 3.14e- 1  18.0 3.00e+ 0 3.14e- 1  18.0 3.00e+ 0 3.14e- 1    -0.00195  26.3
-3 1       336    36  19.4 1.66e+ 1 1.73e+ 0  19.4 1.66e+ 1 1.73e+ 0  19.4 1.66e+ 1 1.73e+ 0    -0.00195  26.3
-# … with 126 more rows, and 14 more variables: A_ven <dbl>, A_l <dbl>, A_rb <dbl>, A_art <dbl>, A_col <dbl>,
+1 1         0    17  17   7.11e-15 7.99e-16  17   7.11e-15 7.99e-16  17   7.11e-15 7.99e-16    -0.00274  26  
+2 1       168    21  18.0 3.00e+ 0 3.38e- 1  18.0 3.00e+ 0 3.38e- 1  18.0 3.00e+ 0 3.38e- 1    -0.00274  26.3
+3 1       336    36  19.4 1.66e+ 1 1.86e+ 0  19.4 1.66e+ 1 1.86e+ 0  19.4 1.66e+ 1 1.86e+ 0    -0.00274  26.3
+# … with 291 more rows, and 14 more variables: A_ven <dbl>, A_l <dbl>, A_rb <dbl>, A_art <dbl>, A_col <dbl>,
 #   A25_ven <dbl>, A25_l <dbl>, A25_rb <dbl>, A25_art <dbl>, A25_col <dbl>, CL_EMAX <dbl>, tad <dbl>,
 #   dosenum <dbl>, D25BASE <dbl>
 # ℹ Use `print(n = ...)` to see more rows, and `colnames()` to see all variable names
-
-
