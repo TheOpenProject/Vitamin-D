@@ -1,0 +1,78 @@
+library(nlmixr2)
+
+setwd("C:/Users/HP/Desktop/Vitamin D PBPK/R")
+getwd()
+ppk25OHD_Model1 <-read.csv(file="ppk25OHD_Model1.csv",stringsAsFactors = FALSE)
+str(ppk25OHD_Model1)
+
+f <- function(){
+  ini({
+    
+    TKp25rb    = round(log(0.54),2)  #  Partition coefficient for the rest of the body
+    TCL_EMAX   = round(log(0.033),2) #  Emax value in clearance Emax model
+    
+    add.err <- 1
+    prop.err <-0.0225
+    
+    eta.Kp25rb +eta.CL_EMAX~ c(input_eta, r, input_eta) 
+    
+    
+  })
+  model({
+    Kp25rb   =  exp(TKp25rb+eta.Kp25rb)
+    CL_EMAX  =  exp(TCL_EMAX+eta.CL_EMAX)
+    
+    CL_C50   =  86.3;
+    CL_GAMMA =  5.64;
+    
+    Qco  =312;
+    Ql   =70.824;
+    Qrb  =241.176;
+    Vven =4.2;
+    Vl   =1.80;
+    Vrb  =62.60;
+    Vart =1.40;
+    Kpl  =1;
+    Kprb =0.09;
+    MCLH =0.2;
+    Kp25l=1;
+    CL_0 =0;
+    ka   =0.19;
+    
+    A_dep   (0)   =  0;
+    A_ven   (0)  =   (CL_0+CL_EMAX*D25BASE^CL_GAMMA/(D25BASE^CL_GAMMA+CL_C50^CL_GAMMA))*3*D25BASE/MCLH*Vven;
+    A_l     (0)  =   (CL_0+CL_EMAX*D25BASE^CL_GAMMA/(D25BASE^CL_GAMMA+CL_C50^CL_GAMMA))*3*D25BASE/MCLH*Vl*Kpl;
+    A_rb    (0)  =   (CL_0+CL_EMAX*D25BASE^CL_GAMMA/(D25BASE^CL_GAMMA+CL_C50^CL_GAMMA))*3*D25BASE/MCLH*Vrb*Kprb;
+    A_art   (0)  =   (CL_0+CL_EMAX*D25BASE^CL_GAMMA/(D25BASE^CL_GAMMA+CL_C50^CL_GAMMA))*3*D25BASE/MCLH*Vart;
+    A_col   (0)  =   0;
+    A25_ven (0) =   D25BASE*Vven;
+    A25_l   (0) =   D25BASE*Vl*Kp25l;
+    A25_rb  (0) =   D25BASE*Vrb*Kp25rb;
+    A25_art  (0) =   D25BASE*Vart;
+    A25_col  (0) =   D25BASE*Vart;
+    
+    d/dt(A_dep)   = -ka*A_dep;
+    d/dt(A_ven)   = Ql*A_l/Vl/Kpl+Qrb*A_rb/Vrb/Kprb-A_ven/Vven*Qco;
+    d/dt(A_l)     = A_art/Vart*Ql-Ql*A_l/Vl/Kpl-MCLH*A_l/Vl/Kpl+(CL_0+
+                                                                   CL_EMAX*D25BASE**CL_GAMMA/(D25BASE**CL_GAMMA+CL_C50**CL_GAMMA))*D25BASE*3+ka*A_dep;
+    d/dt(A_rb)    = A_art/Vart*Qrb-Qrb*A_rb/Vrb/Kprb;
+    d/dt(A_art)   = A_ven/Vven*Qco-A_art/Vart*Ql-A_art/Vart*Qrb;
+    d/dt(A_col)   = MCLH*A_l/Vl/Kpl;
+    d/dt(A25_ven) = Ql*A25_l/Vl/Kp25l+Qrb*A25_rb/Vrb/Kp25rb-A25_ven/Vven*Qco;
+    d/dt(A25_l)   = A25_art/Vart*Ql-Ql*A25_l/Vl/Kp25l+MCLH*A_l/Vl/Kpl/3-
+      (CL_0+CL_EMAX*(A25_l/Vl/Kp25l)**CL_GAMMA/((A25_l/Vl/Kp25l)**CL_GAMMA +CL_C50**CL_GAMMA))*(A25_l/Vl/Kp25l);
+    d/dt(A25_rb)  = A25_art/Vart*Qrb-Qrb*A25_rb/Vrb/Kp25rb;
+    d/dt(A25_art) = A25_ven/Vven*Qco-A25_art/Vart*Ql-A25_art/Vart*Qrb;
+    d/dt(A25_col) = (CL_0+CL_EMAX*(A25_l/Vl/Kp25l)**CL_GAMMA/((A25_l/Vl/Kp25l)**CL_GAMMA+CL_C50**CL_GAMMA))*(A25_l/Vl/Kp25l);
+    
+    
+    cp = A25_ven / Vven;
+    cp ~ add(add.err)+prop(prop.err)
+    
+  })
+}
+
+fit.s <- nlmixr2(f,ppk25OHD_Model1,est="saem",table = tableControl(cwres = TRUE),
+                 control=saemControl(seed=54187541,nBurn = 200,nEm = 200,print=1))
+
+print(fit.s)
